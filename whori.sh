@@ -40,7 +40,7 @@ elif [[ $banner =~ "Ubersmith" ]]; then
         	echo -ne "Done: $i.0.0.0/8\r"
 	done
 	echo "Done: ./$1_4321"
-elif [[ $banner =~ "C.NT" ]]; then
+elif [[ $banner =~ "\(C.NT" ]]; then
 	echo "Non-vulnerable rwhois implementation: $banner"; exit
 else
 	echo "Unknown rwhois implementation: $banner"; exit
