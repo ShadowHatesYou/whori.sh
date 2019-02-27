@@ -14,13 +14,13 @@ if [[ $banner =~ "Network Solutions" ]]; then
 	echo "NetworkSolutions rwhoisd detected, grabbing SOA"
 	exec 5<>/dev/tcp/$1/4321
 	echo -e "-soa\n-quit" >&5
-	cat <&5 > .scratchpad
-	if [[ $(cat .scratchpad) =~ "^%error" ]]; then
-		echo "Error encountered: $(cat .scratchpad)"; exit
+	cat <&5 > .scratchpad_$1
+	if [[ $(cat .scratchpad_$1) =~ "^%error" ]]; then
+		echo "Error encountered: $(cat .scratchpad_$1)"; exit
 	fi
-	cat .scratchpad | grep "authority" | cut -d: -f2- > .authority_areas
-	if [[ $(wc -l .authority_areas | awk '{ print $1}') -gt 0 ]]; then
-		for authority_area in $(cat .authority_areas); do
+	cat .scratchpad_$1 | grep "authority" | cut -d: -f2- > .authority_areas_$1
+	if [[ $(wc -l .authority_areas_$1 | awk '{ print $1}') -gt 0 ]]; then
+		for authority_area in $(cat .authority_areas_$1); do
 			exec 5<>/dev/tcp/$1/4321
 			echo -e "-xfer $authority_area\n-quit" >> $1_4321
 			echo -e "-xfer $authority_area\n-quit" >&5
@@ -28,7 +28,7 @@ if [[ $banner =~ "Network Solutions" ]]; then
 		done
 	echo "Done: ./$1_4321"
 	else
-		echo "No lines in authority areas: ./.authority_areas"; exit
+		echo "No lines in authority areas: ./.authority_areas_$1"; exit
 	fi
 elif [[ $banner =~ "Ubersmith" ]]; then
 	echo "Ubersmith rwhoisd detected, walking /8s"
@@ -45,5 +45,4 @@ elif [[ $banner =~ "\(C.NT" ]]; then
 else
 	echo "Unknown rwhois implementation: $banner"; exit
 fi
-rm .scratchpad
-rm .authority_areas
+rm .scratchpad_$1 .authority_areas_$1
